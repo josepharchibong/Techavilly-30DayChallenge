@@ -65,3 +65,64 @@ WHERE cancellation IS NULL
 GROUP BY pizza_name
 ;
 
+
+-- DAY 6/BONUS QUESTION 1: Using the SampleStore Data, write a query to show the average delivery days
+-- to Dallas, Los Angeles, Seattle & Madison. Only show the City & Average delivery days column
+-- in your output
+SELECT City, AVG(delivery_days) AS Average_delivery_days
+FROM
+(
+	SELECT City, DATEDIFF(DAY, Order_Date, Ship_Date) AS delivery_days
+	FROM dbo.SuperStoreOrders
+	WHERE City IN ('Dallas', 'Los Angeles', 'Seattle', 'Madison')
+) as delivery_days_subQ
+GROUP BY City
+;
+
+
+-- DAY 7/QUESTION 6: Using the SampleStore Data, write a query to help the company identify the customer 
+-- who made the highest sales ever and the categoty of business driving this sale.
+SELECT TOP 1 Customer_Name, 
+			 Category, 
+			 ROUND(SUM(Sales), 0) AS Total_Sales
+FROM dbo.SuperStoreOrders
+GROUP BY Customer_Name, Category
+ORDER BY 3 DESC
+;
+
+
+-- DAY 8/QUESTION 7: Using the SampleStore Data, write a query to show the total sales and percentage 
+-- contribution by each category of The Briggs Company.
+SELECT *, ROUND((Total_Sales/SUM(Total_Sales) OVER ())*100, 2) as Percentage
+FROM
+(
+	SELECT Category, ROUND(SUM(Sales), 2) AS Total_Sales
+	FROM dbo.SuperStoreOrders
+	GROUP BY Category
+) as subQ
+ORDER BY 2 DESC
+;
+
+
+-- DAY 9/QUESTION 8: Using the SampleStore Data, write a query to show the total sales 
+-- by each sub-category of The Briggs Company.
+SELECT [Sub-Category], ROUND(SUM(Sales), 2) AS Total_Sales
+FROm dbo.SuperStoreOrders
+GROUP BY [Sub-Category]
+ORDER BY 2 DESC
+;
+
+
+-- DAY 10/QUESTION 9: Using the SampleStore Data, write a query to show The Briggs
+-- Company the breakdown of the total "phone sales" by year in descending order.
+SELECT Sales_Year, ROUND(SUM(Sales), 2) as Total_Sales
+FROM
+(
+	SELECT Sales, DATEPART(YEAR, Order_Date) AS Sales_Year
+	FROM dbo.SuperStoreOrders
+	WHERE [Sub-Category] = 'Phones'
+) as subQ
+GROUP BY Sales_Year
+ORDER BY 2 DESC
+;
+
